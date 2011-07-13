@@ -1,0 +1,4 @@
+#!/usr/bin/perl
+
+use Pod::PseudoPod::Book;
+Pod::PseudoPod::Book->run;
