@@ -6,7 +6,7 @@ use warnings;
 use parent 'Pod::PseudoPod::Book::Command';
 
 use autodie;
-use Pod::PseudoPod::HTML;
+use Pod::PseudoPod::XHTML;
 use File::Spec::Functions qw( catfile catdir splitpath );
 
 sub execute
@@ -18,20 +18,6 @@ sub execute
     process_chapters( $anchors, @chapters );
 }
 
-sub Pod::PseudoPod::HTML::end_L
-{
-    my $self    = shift;
-    my $anchors = $self->{_pph_anchors};
-
-    if ($self->{scratch} =~ s/\b(\w+)$//)
-    {
-        my $link = $1;
-        die "Unknown link $link\n" unless exists $anchors->{$link};
-        $self->{scratch} .= '<a href="' . $anchors->{$link}[0] . "#$link\">"
-                                        . $anchors->{$link}[1] . '</a>';
-    }
-}
-
 sub process_chapters
 {
     my $anchors = shift;
@@ -39,7 +25,7 @@ sub process_chapters
     for my $chapter (@_)
     {
         my $out_fh              = get_output_fh($chapter);
-        my $parser              = Pod::PseudoPod::HTML->new;
+        my $parser              = Pod::PseudoPod::XHTML->new;
         $parser->{_pph_anchors} = $anchors;
 
         $parser->output_fh($out_fh);
