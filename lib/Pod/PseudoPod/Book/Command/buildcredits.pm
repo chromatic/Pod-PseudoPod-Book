@@ -31,15 +31,4 @@ sub execute
             @names;
 }
 
-sub options
-{
-    my ($self, $app) = @_;
-
-    return
-    [
-        'author_name=s' => 'Author name in CREDITS',
-        { default => $app->config->{book}{author_name} }
-    ];
-}
-
 1;
