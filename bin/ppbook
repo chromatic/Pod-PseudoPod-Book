@@ -1,4 +1,24 @@
 #!/usr/bin/perl
 
 use Pod::PseudoPod::Book;
-Pod::PseudoPod::Book->run;
+
+my %deps =
+(
+    create        => [],
+    buildcredits  => [],
+    buildchapters => [qw( buildcredits )],
+    buildhtml     => [qw( buildchapters buildcredits )],
+
+);
+
+my $app = Pod::PseudoPod::Book->new;
+die "Unknown command (@ARGV)\n" unless $app->plugin_for( $ARGV[0] );
+
+my ($cmd, $opt, @args) = $app->get_command(@ARGV);
+
+for my $command (@{ $deps{$ARGV[0]} }, $cmd)
+{
+    $app->execute_command( $app->plugin_for($command), $opt, @args );
+}
+
+exit;
