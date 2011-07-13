@@ -35,7 +35,18 @@ sub make_conf_file
     my $conf_file         = catfile( $conf_dir, 'book.conf' );
 
     return if Config::Tiny->read( $conf_file );
-    Config::Tiny->new->write( $conf_file );
+    my $config = Config::Tiny->new;
+    $config->{book} =
+    {
+        title          => '',
+        language       => 'en',
+        cover_image    => '',
+        author_name    => '',
+        copyright_year => (localtime)[5] + 1900,
+    };
+
+    $config->write( $conf_file );
+    print "Please edit '$conf_file' to configure your book\n";
 }
 
 1;
