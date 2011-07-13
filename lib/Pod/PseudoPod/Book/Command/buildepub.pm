@@ -1,4 +1,5 @@
 package Pod::PseudoPod::Book::Command::buildepub;
+# ABSTRACT: command module for C<ppbook buildepub>
 
 use strict;
 use warnings;

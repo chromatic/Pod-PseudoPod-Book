@@ -1,4 +1,5 @@
 package Pod::PseudoPod::Book::Command::buildcredits;
+# ABSTRACT: command module for C<ppbook buildcredits>
 
 use strict;
 use warnings;

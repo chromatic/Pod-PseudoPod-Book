@@ -1,4 +1,5 @@
 package Pod::PseudoPod::Book::Command::buildhtml;
+# ABSTRACT: command module for C<ppbook buildhtml>
 
 use strict;
 use warnings;

@@ -1,5 +1,5 @@
 package Pod::PseudoPod::Book::Command::buildchapters;
-# ABSTRACT: builds chapter fragments into chapters
+# ABSTRACT: command module for C<ppbook buildchapters>
 
 use strict;
 use warnings;

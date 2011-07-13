@@ -1,4 +1,5 @@
 package Pod::PseudoPod::Book::Command::create;
+# ABSTRACT: command module for C<ppbook create>
 
 use strict;
 use warnings;

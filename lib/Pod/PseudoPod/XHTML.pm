@@ -1,4 +1,5 @@
 package Pod::PseudoPod::XHTML;
+# ABSTRACT: extension of Pod::PseudoPod::HTML for XHTML output
 
 use strict;
 use warnings;

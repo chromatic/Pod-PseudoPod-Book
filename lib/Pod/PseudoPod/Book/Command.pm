@@ -1,4 +1,5 @@
 package Pod::PseudoPod::Book::Command;
+# ABSTRACT: base class for all ppbook commands
 
 use strict;
 use warnings;
