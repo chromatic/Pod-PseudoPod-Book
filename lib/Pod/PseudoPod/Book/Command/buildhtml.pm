@@ -44,7 +44,8 @@ sub process_chapters
             # P::PP::H uses Text::Wrap which breaks HTML tags
             local *Text::Wrap::wrap;
             *Text::Wrap::wrap = sub { $_[2] };
-            $parser->parse_file($chapter);
+            open my $fh, '<:utf8', $chapter;
+            $parser->parse_file($fh);
         }
     }
 }
