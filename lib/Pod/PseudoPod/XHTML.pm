@@ -4,6 +4,7 @@ package Pod::PseudoPod::XHTML;
 use strict;
 use warnings;
 
+use HTML::Entities;
 use parent 'Pod::PseudoPod::HTML';
 
 sub end_L
@@ -83,7 +84,7 @@ sub end_N {
   $self->{'scratch'} .= '</span>' if $self->{'css_tags'};
 }
 
-sub handle_text { $_[0]{'scratch'} .= encode_entities($_[1]); }
+sub handle_text { $_[0]{'scratch'} .= HTML::Entities::encode_entities($_[1]); }
 
 sub end_item_text { $_[0]{'scratch'} .= '</li>'; $_[0]->emit() }
 
