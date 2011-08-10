@@ -104,7 +104,7 @@ sub write_chapter
 
     print {$fh} $text;
 
-    warn "Writing '$path'\n";
+    warn "Writing '$chapter_path'\n";
 }
 
 1;
