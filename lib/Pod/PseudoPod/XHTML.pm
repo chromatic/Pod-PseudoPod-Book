@@ -7,6 +7,121 @@ use warnings;
 use HTML::Entities;
 use parent 'Pod::PseudoPod::HTML';
 
+sub start_for
+{
+    my ($self, $flags) = @_;
+    my $target         = $flags->{target};
+    my $meth           = 'start_' . $target;
+    return $self->$meth( $flags ) if $self->can($meth);
+    return $self->SUPER::start_for( $flags );
+}
+
+sub start_epigraph
+{
+    my $self = shift;
+    $self->{no_emit}++;
+    $self->SUPER::start_for( @_ );
+}
+
+sub end_epigraph
+{
+    my $self = shift;
+    $self->{scratch} .= '</div>';
+    $self->{scratch} =~ s/<\/p>\s*<p>/<br \/>/g;
+    $self->{scratch} =~ s/--/&mdash;/g;
+    $self->emit;
+    $self->{no_emit}--;
+}
+
+sub start_cell
+{
+    my $self = shift;
+    $self->emit;
+    $self->{no_emit}++;
+    $self->SUPER::start_cell( @_ );
+    push @{ $self->{cell_pos} }, length $self->{scratch};
+}
+
+sub end_cell
+{
+    my $self = shift;
+    my $pos  = pop @{ $self->{cell_pos} };
+
+    $self->{no_emit}--;
+    $self->SUPER::end_cell( @_ ) unless $pos == length $self->{scratch};
+}
+
+sub end_for
+{
+    my ($self, $flags) = @_;
+    my $target         = $flags->{target};
+    my $meth           = 'end_' . $target;
+    return $self->$meth( $flags ) if $self->can($meth);
+    return $self->SUPER::end_for( $flags );
+}
+
+sub start_item_number
+{
+    my $self = shift;
+    $self->{scratch} .= '<li>';
+}
+
+sub start_Para
+{
+    my $self = shift;
+    $self->{scratch} .= '<p>';
+}
+
+sub emit
+{
+    my $self = shift;
+    return if $self->{no_emit};
+    return $self->SUPER::emit( @_ );
+}
+
+sub end_Verbatim
+{
+    my $self = shift;
+
+    $self->{scratch} =~ s/<pre>\s*<code>//g;
+    $self->{scratch} =~ s/\n/<br \/>/g;
+    $self->{scratch} =~ s/ /\&nbsp;/g;
+    $self->{in_verbatim} = 0;
+
+    $self->emit;
+}
+
+sub start_blockquote
+{
+    my $self = shift;
+    $self->{in_blockquote}++;
+    $self->{scratch} .= '<div class="blockquote">';
+}
+
+sub end_blockquote
+{
+    my $self = shift;
+    $self->{in_blockquote}--;
+    $self->{scratch} .= '</div>';
+    $self->emit;
+}
+
+sub start_literal
+{
+    my $self = shift;
+    $self->{no_emit}++;
+    $self->{scratch} .= '<div class="literal">';
+}
+
+sub end_literal
+{
+    my ($self, $flags) = @_;
+    $self->{scratch} .= '</div>';
+    $self->{scratch} =~ s/<\/p>\s*<\/p>/<br \/>/g;
+    $self->emit;
+    $self->{no_emit}--;
+}
+
 sub end_L
 {
     my $self = shift;
