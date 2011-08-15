@@ -8,6 +8,7 @@ use parent 'Pod::PseudoPod::Book::Command';
 
 use autodie;
 use EBook::EPUB;
+use File::Basename;
 use Pod::PseudoPod::XHTML;
 use File::Spec::Functions qw( catfile catdir splitpath );
 
@@ -15,12 +16,13 @@ sub execute
 {
     my ($self, $opt, $args) = @_;
 
+    my $conf                = $self->config_file;
     my @chapters            = get_chapter_list();
     my $anchors             = get_anchors(@chapters);
     my ($toc, $entries)     = process_chapters($anchors, @chapters);
 
     generate_index($entries);
-    generate_ebook($toc, @chapters);
+    generate_ebook($conf, $toc, @chapters);
 }
 
 sub get_anchor_for_index
@@ -112,7 +114,8 @@ sub process_chapters
             $parser->parse_file($fh);
         }
 
-        push @table_of_contents, @{ $parser->{to_index} };
+        push @table_of_contents, @{ $parser->{to_index} }
+            if $parser->{to_index};
     }
 
     return \@table_of_contents;
@@ -149,12 +152,12 @@ sub get_chapter_list
 
 sub get_output_fh
 {
-    my $chapter  = shift;
-    my $name     = (splitpath $chapter )[-1];
-    my $xhtmldir = catdir(qw( build xhtml ));
+    my $chapter = shift;
+    my $name    = (splitpath $chapter )[-1];
+    my $htmldir = catdir(qw( build html ));
 
     $name =~ s/\.pod/\.xhtml/;
-    $name = catfile($xhtmldir, $name);
+    $name = catfile($htmldir, $name);
 
     open my $fh, '>:utf8', $name;
 
@@ -231,43 +234,76 @@ sub print_index
 #
 sub generate_ebook
 {
-    my ($table_of_contents, @chapters) = @_;
+    my ($conf, $table_of_contents, @chapters) = @_;
 
     # Create EPUB object
     my $epub = EBook::EPUB->new;
 
     # Set the ePub metadata.
-    $epub->add_title('Modern Perl');
-    $epub->add_author('chromatic');
-    $epub->add_language('en');
+    $epub->add_title($conf->{book}{title});
+    $epub->add_author($conf->{book}{author_name});
+    $epub->add_language($conf->{book}{language});
 
     # Add the book cover.
-    add_cover($epub, './images/mp_cover_full.png');
+    my $cover = $conf->{book}{cover_image};
+    add_cover($conf, $epub, $cover) if -e $cover;
 
     # Add some other metadata to the OPF file.
     $epub->add_meta_item('EBook::EPUB version', $EBook::EPUB::VERSION);
 
-    # Add package content: stylesheet, font, xhtml
+    # Add package content: stylesheet, font, html
     $epub->copy_stylesheet('./build/html/style.css', 'styles/style.css');
 
-    for my $chapter (@chapters)
-    {
-        my $name = (splitpath $chapter )[-1];
-        $name =~ s/\.pod/\.xhtml/;
-        my $file = "./build/xhtml/$name";
-
-        system( qw( tidy -q -m -utf8 -asxhtml -wrap 0 ), $file );
-
-        $epub->copy_xhtml('./build/xhtml/' . $name,
-                          'text/' . $name );
-    }
+    add_chapters( $epub, @chapters );
+    add_images( $epub );
 
     # Add Pod headings to table of contents.
     set_table_of_contents($epub, $table_of_contents);
+    (my $filename_title = lc $conf->{book}{title} . '.epub') =~ s/\s+/_/g;
 
     # Generate the ePub eBook.
-    my $filename = catfile(qw(build epub modern_perl.epub));
+    my $filename = catfile( qw( build epub ), $filename_title );
     $epub->pack_zip($filename);
+}
+
+sub add_images
+{
+    my $epub       = shift;
+    my %mime_types = 
+    (
+        jpg => 'image/jpeg',
+        gif => 'image/gif',
+        png => 'image/png',
+    );
+
+    for my $image (glob( './build/images/*' ))
+    {
+        my ($name, $path, $suffix) = fileparse( $image, qw( jpg gif png ) );
+        my $mime_type              = $mime_types{$suffix};
+        my $dest                   = "images/$name$suffix";
+
+        die "Unknown image '$image'" unless $mime_type;
+        $epub->add_image_entry( $image, $mime_type );
+        $epub->copy_file( $image, $dest, $mime_type );
+    }
+}
+
+sub add_chapters
+{
+    my $epub = shift;
+
+    for my $chapter (@_)
+    {
+        my $source = (splitpath $chapter )[-1];
+        my $dest   = $source;
+        $source =~ s/\.pod/\.html/;
+        $dest   =~ s/\.pod/\.xhtml/;
+        my $file = "./build/html/$source";
+
+        system( qw( tidy -q -m -utf8 -asxhtml -wrap 0 ), $file );
+
+        $epub->copy_xhtml($file, 'text/' . $dest );
+    }
 }
 
 
@@ -279,23 +315,19 @@ sub generate_ebook
 #
 sub set_table_of_contents
 {
-
     my $epub         = shift;
     my $pod_headings = shift;
 
-    my $play_order = 1;
-    my @navpoints  = ($epub) x 5;
+    my $play_order   = 1;
+    my @navpoints    = ($epub) x 5;
     my @navpoint_obj;
-
 
     for my $heading (@$pod_headings)
     {
-
         my $heading_level = $heading->[0];
         my $section       = $heading->[1];
         my $label         = $heading->[2];
         my $content       = 'text/' . $heading->[3] . '.xhtml';
-
 
         # Add the pod section to the NCX data, Except for the root heading.
         $content .= '#' . $section if $section ne 'heading_id_2';
@@ -319,7 +351,6 @@ sub set_table_of_contents
 
         # This is a workaround for non-contiguous heading levels.
         $navpoints[$heading_level + 1] = $navpoint_obj;
-
     }
 }
 
@@ -333,7 +364,7 @@ sub set_table_of_contents
 #
 sub add_cover
 {
-    my ($epub, $cover_image) = @_;
+    my ($conf, $epub, $cover_image) = @_;
 
     # Check if the cover image exists.
     if (!-e $cover_image)
@@ -360,14 +391,14 @@ content="text/html; charset=iso-8859-1"/>
 <style type="text/css"> img { max-width: 100%; }</style>
 </head>
 <body>
-    <p><img alt="Modern Perl" src="../images/cover.png" /></p>
+    <p><img alt="$conf->{book}{title}" src="../images/cover.png" /></p>
 </body>
 </html>
 
 END_XHTML
 
-    # Crete a the cover xhtml file.
-    my $cover_filename = './build/xhtml/cover.xhtml';
+    # Create the cover xhtml file.
+    my $cover_filename = './build/html/cover.xhtml';
     open my $cover_fh, '>:utf8', $cover_filename;
 
     print $cover_fh $cover_xhtml;

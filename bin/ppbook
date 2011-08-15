@@ -8,7 +8,7 @@ my %deps =
     buildcredits  => [],
     buildchapters => [qw( buildcredits )],
     buildhtml     => [qw( buildchapters buildcredits )],
-
+    buildepub     => [qw( buildcredits buildchapters buildhtml )],
 );
 
 my $app = Pod::PseudoPod::Book->new;

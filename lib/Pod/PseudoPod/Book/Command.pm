@@ -5,6 +5,15 @@ use strict;
 use warnings;
 
 use App::Cmd::Setup -command;
+use File::Spec;
+
+sub config_file
+{
+    my ($self, $path) = @_;
+    $path           ||= '.';
+    my $conf_file     = File::Spec->catfile( $path, 'book.conf' );
+    return Config::Tiny->read( $conf_file );
+}
 
 sub opt_spec
 {
