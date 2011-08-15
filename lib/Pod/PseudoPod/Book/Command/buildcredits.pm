@@ -25,11 +25,14 @@ sub execute
     }
 
     open my $out_fh, '>:utf8', catfile(qw( sections credits.pod ));
+    print {$out_fh} "Z<credits>\n";
+
     print {$out_fh} "$_,\n"
         for map  { local $" = ' '; "@$_" }
             sort { $a->[-1] cmp $b->[-1] }
             map  { [ (split / /, $_) ] }
             @names;
+
 }
 
 1;
