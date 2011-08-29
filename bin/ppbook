@@ -12,7 +12,7 @@ my %deps =
 );
 
 my $app = Pod::PseudoPod::Book->new;
-die "Unknown command (@ARGV)\n" unless $app->plugin_for( $ARGV[0] );
+usage("Unknown command (@ARGV)") unless $app->plugin_for( $ARGV[0] );
 
 my ($cmd, $opt, @args) = $app->get_command(@ARGV);
 
@@ -22,3 +22,14 @@ for my $command (@{ $deps{$ARGV[0]} }, $cmd)
 }
 
 exit;
+
+sub usage
+{
+    my $txt = shift;
+    print "$txt\n" if $txt;
+    print "Commands:\n";
+    foreach my $cmd (sort keys %deps) {
+        print "   $cmd\n";
+    }
+    exit;
+}
