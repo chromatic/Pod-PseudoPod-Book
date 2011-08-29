@@ -12,6 +12,7 @@ my %deps =
 );
 
 my $app = Pod::PseudoPod::Book->new;
+usage("Missing command") unless @ARGV;
 usage("Unknown command (@ARGV)") unless $app->plugin_for( $ARGV[0] );
 
 my ($cmd, $opt, @args) = $app->get_command(@ARGV);
@@ -27,7 +28,7 @@ sub usage
 {
     my $txt = shift;
     print "$txt\n" if $txt;
-    print "Commands:\n";
+    print "Available commands:\n";
     foreach my $cmd (sort keys %deps) {
         print "   $cmd\n";
     }
