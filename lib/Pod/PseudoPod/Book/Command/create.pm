@@ -39,11 +39,16 @@ sub make_conf_file
     my $config = Config::Tiny->new;
     $config->{book} =
     {
-        title          => '',
-        language       => 'en',
-        cover_image    => '',
-        author_name    => '',
-        copyright_year => (localtime)[5] + 1900,
+        title             => '',
+        language          => 'en',
+        cover_image       => '',
+        author_name       => '',
+        copyright_year    => (localtime)[5] + 1900,
+        filename_template => 'book',
+        subtitle          => '',
+        build_index       =>  1,
+        ISBN10            => '',
+        ISBN13            => '',
     };
 
     $config->write( $conf_file );
