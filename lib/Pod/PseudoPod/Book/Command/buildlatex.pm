@@ -20,7 +20,8 @@ sub execute
     {
         my $file     = $_;
         my $filename = fileparse( $file, qr{\..*} ) . '.pod';
-        my $outfile  = file( $output_dir, $filename );
+        (my $texname = $filename) =~ s/\.pod$/\.tex/;
+        my $outfile  = file( $output_dir, $texname );
 
         $file => $outfile,
     } get_chapter_list();
