@@ -15,6 +15,7 @@ sub execute
     my $conf                = $self->config_file;
     my $size                = 'letter';
     my $latex_dir           = dir(qw( build latex ));
+    my $pdf_dir             = $latex_dir->parent->subdir( 'pdf' )->absolute;
     my $filename_template   = $conf->{book}{filename_template};
 
     for my $arg (@$args)
@@ -26,15 +27,19 @@ sub execute
     push @CWD, "$latex_dir";
     my $tex_file = $filename_template . '_' . $size . '.tex';
     my $idx_file = $filename_template . '_' . $size . '.idx';
+    my $ind_file = $filename_template . '_' . $size . '.ind';
     unlink $idx_file;
 
     die "No LaTeX file found at '$tex_file'\n" unless -e $tex_file;
-    die "pdflatex failed for $tex_file: $!"  if system 'pdflatex',  $tex_file;
+    my @pdf_args = ( pdflatex => "-output-directory=$pdf_dir", $tex_file );
+    die "pdflatex failed for $tex_file: $!"  if system @pdf_args;
 
-    return unless $conf->{book}{build_index};
-
-    die "makeindex failed for $idx_file: $!" if system 'makeindex', $idx_file;
-    die "pdflatex failed for $tex_file: $!"  if system 'pdflatex',  $tex_file;
+    if ($conf->{book}{build_index})
+    {
+        my @idx_args = ( makeindex => '-o', $ind_file, "$pdf_dir/$idx_file" );
+        die "makeindex failed for $idx_file: $!" if system @idx_args;
+        die "pdflatex failed for $tex_file: $!"  if system @pdf_args;
+    }
 
     pop @CWD;
 }
