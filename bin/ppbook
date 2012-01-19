@@ -1,5 +1,8 @@
 #!/usr/bin/perl
 
+use strict;
+use warnings;
+
 use Pod::PseudoPod::Book;
 
 my %deps =
@@ -18,8 +21,14 @@ usage("Missing command") unless @ARGV;
 usage("Unknown command (@ARGV)") unless $app->plugin_for( $ARGV[0] );
 
 my ($cmd, $opt, @args) = $app->get_command(@ARGV);
+my @deps;
 
-for my $command (@{ $deps{$ARGV[0]} }, $cmd)
+unless ($ARGV[-1] eq '--nodeps')
+{
+    @deps = @{ $deps{$ARGV[0]} };
+}
+
+for my $command (@deps, $cmd)
 {
     $app->execute_command( $app->plugin_for($command), $opt, @args );
 }
@@ -31,7 +40,8 @@ sub usage
     my $txt = shift;
     print "$txt\n" if $txt;
     print "Available commands:\n";
-    foreach my $cmd (sort keys %deps) {
+    for my $cmd (sort keys %deps)
+    {
         print "   $cmd\n";
     }
     exit;
