@@ -24,23 +24,24 @@ sub opt_spec
 sub options
 {
     my ($self, $app) = @_;
+    my $conf         = $app->config;
 
     return
     [
         'author_name=s' => "Author's name",
-        { default => $app->config->{book}{author_name} },
+        { default => $conf->{book}{author_name} },
 
         'copyright_year=s' => 'Copyright year',
-        { default => $app->config->{book}{copyright_year} },
+        { default => $conf->{book}{copyright_year} },
 
         'cover_image=s' => 'Path to cover image',
-        { default => $app->config->{book}{cover_image} },
+        { default => $conf->{book}{cover_image} },
 
         'language=s' => 'Language code for contents',
-        { default => $app->config->{book}{language} },
+        { default => $conf->{book}{language} },
 
         'title=s' => 'Book title',
-        { default => $app->config->{book}{title} },
+        { default => $conf->{book}{title} },
     ];
 }
 
