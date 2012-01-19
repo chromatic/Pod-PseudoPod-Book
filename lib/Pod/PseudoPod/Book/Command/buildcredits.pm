@@ -12,6 +12,9 @@ use File::Spec::Functions 'catfile';
 sub execute
 {
     my ($self, $opt, $args) = @_;
+    my $conf                = $self->config_file;
+    return unless $conf->{book}{build_credits};
+
     my $author_name         = $opt->{author_name} || '';
 
     open my $fh, '<:utf8', 'CREDITS';

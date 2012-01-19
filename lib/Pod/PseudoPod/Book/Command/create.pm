@@ -47,6 +47,7 @@ sub make_conf_file
         filename_template => 'book',
         subtitle          => '',
         build_index       =>  1,
+        build_credits     =>  0,
         ISBN10            => '',
         ISBN13            => '',
     };
