@@ -1,0 +1,94 @@
+package Pod::PseudoPod::Book::Conf;
+
+1;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+Pod::PseudoPod::Book::Conf - configuration options for Pod::PseudoPod::Books
+
+=head1 SYNOPSIS
+
+    # example configuration for the Modern Perl book
+    [book]
+    author_name=chromatic
+    copyright_year=2012
+    cover_image=
+    language=en
+    title=Modern Perl
+    subtitle=2011-2012 edition
+    filename_template=modern_perl
+    build_index=1
+    build_credits=1
+    ISBN10=0-9779201-7-8
+    ISBN13=978-0-9779201-7-4
+
+=head1 DESCRIPTION
+
+While C<Pod::PseudoPod::Book> tries to do the right thing by default for all
+materials, it needs some help for things it can't guess. It also lets you
+configure some options where the defaults aren't quite right.
+
+When you create a book with the command C<ppbook create>, you'll get a file
+named F<book.conf>. Edit that and change the values as appropriate for your
+project. The file is deliberately simple and uses the INI format as understood
+by L<Config::Tiny>; for more details of the syntax, see that module.
+
+=head2 The Book Section
+
+The section marked C<[book]> contains several pieces of information about your
+work:
+
+=over 4
+
+=item * C<title> is the title of the book.
+
+=item * C<subtitle> is the subtitle of the book. Leave this blank if you have
+no subtitle.
+
+=item * C<language> is the IETF language tag which best represents the book's
+contents. If you're reading this, likely you're fine using C<en>. See RFC 3066
+or RFC 4646 for copious detail.
+
+=item * C<cover_image> is the path to the image used for the book's cover.
+
+=item * C<author_name> is your name. Congratulations!
+
+=item * C<copyright_year> is the effective copyright year. If it takes you a
+while to write the book, feel free to increment this value when you publish.
+
+=item * C<filename_prefix> is the filename prefix used to manage multiple bok
+files for various editions, sizes, or layouts. This makes more sense in the
+LaTeX world, where the Modern Perl book uses a prefix of C<modern_perl> and has
+F<modern_perl_letter.tex>, F<modern_perl_a4.tex>, and F<modern_perl_6x9.tex>
+with the appropriate paper sizes and margins. The default value of C<book> is
+usually sufficient.
+
+=item * C<build_index> is a boolean flag which controls whether to build and
+include an index, when possible. This is great for technical and non-fiction
+works, but works of fiction don't get much value from it.
+
+=item * C<build_credits> is a boolean flag which controls whether to turn a
+F<CREDITS> file in the top-level directory into a F<credits.pod> file woven
+into the built chapters. Modern Perl does this. You may not need it.
+
+=item * C<ISBN10> is the 10-digit (legacy) ISBN for the work. If you haven't
+registered an ISBN, ignore this. (If you I<have> registered an ISBN, you should
+get an 10-digit ISBN for free when you registered your 13-digit ISBN.)
+
+=item * C<ISBN13> is the 13-digit (modern) ISBN for the work. If you haven't
+registered an ISBN, ignore this.
+
+=back
+
+=head1 COPYRIGHT
+
+Copyright 2011-2012 chromatic.
+
+This program is free software. You can redistribute it and/or modify it under
+the same terms as Perl 5.14 itself.
+
+=cut

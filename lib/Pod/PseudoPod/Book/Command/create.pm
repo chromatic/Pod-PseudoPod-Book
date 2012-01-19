@@ -37,6 +37,11 @@ sub make_conf_file
 
     return if Config::Tiny->read( $conf_file );
     my $config = Config::Tiny->new;
+    $config->{_}{rootproperty} =
+    {
+        help => 'See perldoc Pod::PseudoPod::Book::Conf for details',
+    };
+
     $config->{book} =
     {
         title             => '',
@@ -54,6 +59,7 @@ sub make_conf_file
 
     $config->write( $conf_file );
     print "Please edit '$conf_file' to configure your book\n";
+    print "See perldoc Pod::PseudoPod::Book::Conf for details\n";
 }
 
 1;
