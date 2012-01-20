@@ -97,6 +97,12 @@ subchapters, it must find them somehow. Here's where. The default value of
 C<sections> is usually fine, but for other uses sometimes a different name is
 more semantically relevant.
 
+=item * C<chapter_name_prefix> is the prefix of all top-level chapter names in
+C<subchapter_directory>. These files may contain links to other POD files in
+that directory; the C<buildchapters> stage weaves them together and writes the
+results into F<build/chapters/>. The default of C<chapter> means that you will
+create chapters as F<chapter_01.pod>, F<chapter_02.pod>, and so on.
+
 =back
 
 =head1 COPYRIGHT

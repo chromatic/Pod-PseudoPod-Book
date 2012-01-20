@@ -17,9 +17,9 @@ sub execute
     my ($self, $opt, $args) = @_;
 
     my $conf                = $self->config_file;
-    my @chapters            = get_chapter_list();
-    my $anchors             = get_anchors(@chapters);
-    my ($toc, $entries)     = process_chapters($anchors, @chapters);
+    my @chapters            = $self->get_built_chapters;
+    my $anchors             = $self->get_anchor_list( '.xhtml',  @chapters );
+    my ($toc, $entries)     = $self->process_chapters( $anchors, @chapters );
 
     generate_index($entries);
     generate_ebook($conf, $toc, @chapters);
@@ -74,10 +74,11 @@ sub clean_name
 
 sub process_chapters
 {
-    my ($anchors, @chapters) = @_;
+    my ($self, $anchors, @chapters) = @_;
 
     my @table_of_contents;
-    my $entries = {};
+    my $entries        = {};
+    my $chapter_prefix = $self->config_file->{layout}{chapter_name_prefix};
 
     for my $chapter (@chapters)
     {
@@ -103,7 +104,7 @@ sub process_chapters
         $parser->no_errata_section(1);
         $parser->complain_stderr(1);
 
-        my ($file) = $chapter =~ /(chapter_\d+)./;
+        my ($file) = $chapter =~ /(${chapter_prefix}_\d+)./;
         $parser->{file} = $file . '.xhtml';
 
         {
@@ -121,33 +122,9 @@ sub process_chapters
     return \@table_of_contents;
 }
 
-sub get_anchors
-{
-    my %anchors;
-
-    for my $chapter (@_)
-    {
-        my ($file)   = $chapter =~ /(chapter_\d+)./;
-        my $contents = slurp($chapter);
-
-        while ($contents =~ /^=head\d (.*?)\n\nZ<(.*?)>/mg)
-        {
-            $anchors{$2} = [$file . '.xhtml', $1];
-        }
-    }
-
-    return \%anchors;
-}
-
 sub slurp
 {
     return do { local @ARGV = @_; local $/ = <>; };
-}
-
-sub get_chapter_list
-{
-    my $glob_path = catfile(qw( build chapters chapter_??.pod ));
-    return glob $glob_path;
 }
 
 sub get_output_fh

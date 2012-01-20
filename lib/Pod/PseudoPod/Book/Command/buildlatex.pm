@@ -24,15 +24,9 @@ sub execute
         my $outfile  = file( $output_dir, $texname );
 
         $file => $outfile,
-    } get_chapter_list();
+    } $self->get_built_chapters;
 
     Pod::PseudoPod::DOM::App::ToLaTeX::process_files_with_output( %files );
-}
-
-sub get_chapter_list
-{
-    my $glob_path = file( qw( build chapters chapter_??.pod ) );
-    return glob "$glob_path";
 }
 
 1;

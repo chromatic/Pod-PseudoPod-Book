@@ -32,22 +32,24 @@ sub get_chapter_list
     my $self      = shift;
     my $conf      = $self->config_file;
     my $dir       = $conf->{layout}{subchapter_directory};
-    my $glob_path = catfile( $dir, 'chapter_??.pod' );
+    my $chapname  = $conf->{layout}{chapter_name_prefix};
+    my $glob_path = catfile( $dir, $chapname . '_*.pod' );
     return glob( $glob_path );
 }
 
 sub get_section_list
 {
-    my $self          = shift;
-    my $conf          = $self->config_file;
-    my $dir           = $conf->{layout}{subchapter_directory};
-    my $sections_path = catfile( $dir, '*.pod' );
+    my $self           = shift;
+    my $conf           = $self->config_file;
+    my $dir            = $conf->{layout}{subchapter_directory};
+    my $chapter_prefix = $conf->{layout}{chapter_name_prefix};
+    my $sections_path  = catfile( $dir, '*.pod' );
 
     my %sections;
 
     for my $section (glob( $sections_path ))
     {
-        next if $section     =~ /\bchapter_??/;
+        next if $section     =~ /\b${chapter_prefix}_\d+/;
         my $anchor           =  get_anchor( $section );
         $sections{ $anchor } =  $section;
     }

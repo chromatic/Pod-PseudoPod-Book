@@ -45,4 +45,33 @@ sub options
     ];
 }
 
+sub get_built_chapters
+{
+    my $self           = shift;
+    my $conf           = $self->config_file;
+    my $chapter_prefix = $conf->{layout}{chapter_name_prefix};
+
+    return glob catfile(qw( build chapters ), $chapter_prefix . '_*.pod' );
+}
+
+sub get_anchor_list
+{
+    my ($self, $suffix) = splice @_, 0, 2;
+    my $chapter_prefix  = $self->config_file->{layout}{chapter_name_prefix};
+    my %anchors;
+
+    for my $chapter (@_)
+    {
+        my ($file)   = $chapter =~ /(${chapter_prefix}_\d+)./;
+        my $contents = slurp($chapter);
+
+        while ($contents =~ /^=head\d (.*?)\n\nZ<(.*?)>/mg)
+        {
+            $anchors{$2} = [ $file . $suffix, $1 ];
+        }
+    }
+
+    return \%anchors;
+}
+
 1;

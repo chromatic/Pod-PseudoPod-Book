@@ -14,8 +14,8 @@ sub execute
 {
     my ($self, $opt, $args) = @_;
 
-    my @chapters = get_chapter_list();
-    my $anchors  = get_anchors(@chapters);
+    my @chapters = $self->get_built_chapters;
+    my $anchors  = $self->get_anchor_list( '.html', @chapters );
     process_chapters( $anchors, @chapters );
 }
 
@@ -50,33 +50,9 @@ sub process_chapters
     }
 }
 
-sub get_anchors
-{
-    my %anchors;
-
-    for my $chapter (@_)
-    {
-        my ($file)   = $chapter =~ /(chapter_\d+)./;
-        my $contents = slurp( $chapter );
-
-        while ($contents =~ /^=head\d (.*?)\n\nZ<(.*?)>/mg)
-        {
-            $anchors{$2} = [ $file . '.html', $1 ];
-        }
-    }
-
-    return \%anchors;
-}
-
 sub slurp
 {
     return do { local @ARGV = @_; local $/ = <>; };
-}
-
-sub get_chapter_list
-{
-    my $glob_path = catfile( qw( build chapters chapter_??.pod ) );
-    return glob $glob_path;
 }
 
 sub get_output_fh

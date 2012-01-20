@@ -59,7 +59,8 @@ sub make_conf_file
     };
     $config->{layout} =
     {
-        subchapter_directory  => 'sections',
+        chapter_name_prefix  => 'chapter',
+        subchapter_directory => 'sections',
     };
 
     $config->write( $conf_file );
