@@ -23,11 +23,12 @@ sub execute
 sub make_paths
 {
     my ($self, $book_dir) = @_;
+    my $conf              = $self->config_file;
+    my $dir               = $conf->{layout}{subchapter_directory};
 
     make_path map { catdir( $book_dir, $_ ) }
-                qw( sections images ),
-                map { catdir( 'build', $_ ) }
-                        qw( chapters latex html epub pdf );
+                $dir, 'images', map { catdir( 'build', $_ ) }
+                                    qw( chapters latex html epub pdf );
 }
 
 sub make_conf_file
@@ -55,6 +56,10 @@ sub make_conf_file
         build_credits     =>  0,
         ISBN10            => '',
         ISBN13            => '',
+    };
+    $config->{layout} =
+    {
+        subchapter_directory  => 'sections',
     };
 
     $config->write( $conf_file );

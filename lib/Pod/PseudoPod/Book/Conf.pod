@@ -84,6 +84,21 @@ registered an ISBN, ignore this.
 
 =back
 
+=head2 The Layout Section
+
+The section marked C<[layout]> contains several pieces of information about
+the directory structure used to manage work:
+
+=over 4
+
+=item * C<subchapter_directory> is the directory beneath which you store
+chapters and their pieces. As C<ppbook> processes chapter files and weaves in
+subchapters, it must find them somehow. Here's where. The default value of
+C<sections> is usually fine, but for other uses sometimes a different name is
+more semantically relevant.
+
+=back
+
 =head1 COPYRIGHT
 
 Copyright 2011-2012 chromatic.

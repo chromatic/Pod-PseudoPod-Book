@@ -13,10 +13,10 @@ sub execute
 {
     my ($self, $opt, $args) = @_;
 
-    my $sections_href = get_section_list();
+    my $sections_href = $self->get_section_list;
     die "No sections\n" unless keys %$sections_href;
 
-    for my $chapter (get_chapter_list())
+    for my $chapter ($self->get_chapter_list)
     {
         my $text = process_chapter( $chapter, $sections_href );
         write_chapter( $chapter, $text );
@@ -29,20 +29,27 @@ sub execute
 
 sub get_chapter_list
 {
-    my $glob_path = catfile( 'sections', 'chapter_??.pod' );
+    my $self      = shift;
+    my $conf      = $self->config_file;
+    my $dir       = $conf->{layout}{subchapter_directory};
+    my $glob_path = catfile( $dir, 'chapter_??.pod' );
     return glob( $glob_path );
 }
 
 sub get_section_list
 {
+    my $self          = shift;
+    my $conf          = $self->config_file;
+    my $dir           = $conf->{layout}{subchapter_directory};
+    my $sections_path = catfile( $dir, '*.pod' );
+
     my %sections;
-    my $sections_path = catfile( 'sections', '*.pod' );
 
     for my $section (glob( $sections_path ))
     {
-        next if $section =~ /\bchapter_??/;
-        my $anchor = get_anchor( $section );
-        $sections{ $anchor } = $section;
+        next if $section     =~ /\bchapter_??/;
+        my $anchor           =  get_anchor( $section );
+        $sections{ $anchor } =  $section;
     }
 
     return \%sections;
@@ -54,7 +61,8 @@ sub get_anchor
 
     open my $fh, '<:utf8', $path;
 
-    while (<$fh>) {
+    while (<$fh>)
+    {
         next unless /Z<(\w*)>/;
         return $1;
     }
@@ -65,7 +73,7 @@ sub get_anchor
 sub process_chapter
 {
     my ($path, $sections_href) = @_;
-    my $text                 = read_file( $path );
+    my $text                   = read_file( $path );
 
     $text =~ s/^L<(\w+)>/insert_section( $sections_href, $1, $path )/emg;
 

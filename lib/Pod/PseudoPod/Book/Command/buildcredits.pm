@@ -27,7 +27,8 @@ sub execute
         push @names, $1;
     }
 
-    open my $out_fh, '>:utf8', catfile(qw( sections credits.pod ));
+    my $dir = $conf->{layout}{subchapter_directory};
+    open my $out_fh, '>:utf8', catfile( $dir, 'credits.pod' );
     print {$out_fh} "Z<credits>\n";
 
     print {$out_fh} "$_,\n"
@@ -35,7 +36,6 @@ sub execute
             sort { $a->[-1] cmp $b->[-1] }
             map  { [ (split / /, $_) ] }
             @names;
-
 }
 
 1;
