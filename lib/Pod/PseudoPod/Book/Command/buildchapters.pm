@@ -19,7 +19,7 @@ sub execute
     for my $chapter ($self->get_chapter_list)
     {
         my $text = process_chapter( $chapter, $sections_href );
-        write_chapter( $chapter, $text );
+        $self->write_chapter( $chapter, $text );
     }
 
     return unless keys %$sections_href;
@@ -105,10 +105,12 @@ sub insert_section
 
 sub write_chapter
 {
-    my ($path, $text) = @_;
-    my $name          = ( splitpath $path )[-1];
-    my $chapter_dir   = catdir( 'build', 'chapters' );
-    my $chapter_path  = catfile( $chapter_dir, $name );
+    my ($self, $path, $text) = @_;
+    my $conf                 = $self->config_file;
+    my $chapter_build_dir    = $conf->{layout}{chapter_build_directory};
+    my $name                 = ( splitpath $path )[-1];
+    my $chapter_dir          = catdir( 'build', $chapter_build_dir );
+    my $chapter_path         = catfile( $chapter_dir, $name );
 
     open my $fh, '>:utf8', $chapter_path;
 

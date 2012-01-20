@@ -47,11 +47,12 @@ sub options
 
 sub get_built_chapters
 {
-    my $self           = shift;
-    my $conf           = $self->config_file;
-    my $chapter_prefix = $conf->{layout}{chapter_name_prefix};
+    my $self              = shift;
+    my $conf              = $self->config_file;
+    my $chapter_prefix    = $conf->{layout}{chapter_name_prefix};
+    my $chapter_build_dir = $conf->{layout}{chapter_build_directory};
 
-    return glob catfile(qw( build chapters ), $chapter_prefix . '_*.pod' );
+    return glob catfile('build', $chapter_build_dir, "${chapter_prefix}_*.pod");
 }
 
 sub get_anchor_list
