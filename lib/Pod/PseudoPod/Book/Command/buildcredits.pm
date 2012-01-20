@@ -12,7 +12,7 @@ use File::Spec::Functions 'catfile';
 sub execute
 {
     my ($self, $opt, $args) = @_;
-    my $conf                = $self->config_file;
+    my $conf                = $self->config;
     return unless $conf->{book}{build_credits};
 
     my $author_name         = $opt->{author_name} || '';

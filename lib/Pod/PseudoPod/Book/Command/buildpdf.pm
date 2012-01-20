@@ -12,7 +12,7 @@ sub execute
 {
     my ($self, $opt, $args) = @_;
     my %sizes               = map { $_ => 1 } qw( letter a4 6x9 );
-    my $conf                = $self->config_file;
+    my $conf                = $self->config;
     my $size                = 'letter';
     my $latex_dir           = dir(qw( build latex ));
     my $pdf_dir             = $latex_dir->parent->subdir( 'pdf' )->absolute;

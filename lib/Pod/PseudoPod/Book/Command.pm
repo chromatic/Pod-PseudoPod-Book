@@ -7,7 +7,7 @@ use warnings;
 use App::Cmd::Setup -command;
 use File::Spec;
 
-sub config_file
+sub config
 {
     my ($self, $path) = @_;
     $path           ||= '.';
@@ -48,7 +48,7 @@ sub options
 sub get_built_chapters
 {
     my $self              = shift;
-    my $conf              = $self->config_file;
+    my $conf              = $self->config;
     my $chapter_prefix    = $conf->{layout}{chapter_name_prefix};
     my $chapter_build_dir = $conf->{layout}{chapter_build_directory};
 
@@ -58,7 +58,7 @@ sub get_built_chapters
 sub get_anchor_list
 {
     my ($self, $suffix) = splice @_, 0, 2;
-    my $chapter_prefix  = $self->config_file->{layout}{chapter_name_prefix};
+    my $chapter_prefix  = $self->config->{layout}{chapter_name_prefix};
     my %anchors;
 
     for my $chapter (@_)

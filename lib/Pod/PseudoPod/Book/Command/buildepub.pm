@@ -16,7 +16,7 @@ sub execute
 {
     my ($self, $opt, $args) = @_;
 
-    my $conf                = $self->config_file;
+    my $conf                = $self->config;
     my @chapters            = $self->get_built_chapters;
     my $anchors             = $self->get_anchor_list( '.xhtml',  @chapters );
     my ($toc, $entries)     = $self->process_chapters( $anchors, @chapters );
@@ -78,7 +78,7 @@ sub process_chapters
 
     my @table_of_contents;
     my $entries        = {};
-    my $chapter_prefix = $self->config_file->{layout}{chapter_name_prefix};
+    my $chapter_prefix = $self->config->{layout}{chapter_name_prefix};
 
     for my $chapter (@chapters)
     {

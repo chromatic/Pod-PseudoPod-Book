@@ -30,7 +30,7 @@ sub execute
 sub get_chapter_list
 {
     my $self      = shift;
-    my $conf      = $self->config_file;
+    my $conf      = $self->config;
     my $dir       = $conf->{layout}{subchapter_directory};
     my $chapname  = $conf->{layout}{chapter_name_prefix};
     my $glob_path = catfile( $dir, $chapname . '_*.pod' );
@@ -40,7 +40,7 @@ sub get_chapter_list
 sub get_section_list
 {
     my $self           = shift;
-    my $conf           = $self->config_file;
+    my $conf           = $self->config;
     my $dir            = $conf->{layout}{subchapter_directory};
     my $chapter_prefix = $conf->{layout}{chapter_name_prefix};
     my $sections_path  = catfile( $dir, '*.pod' );
@@ -106,7 +106,7 @@ sub insert_section
 sub write_chapter
 {
     my ($self, $path, $text) = @_;
-    my $conf                 = $self->config_file;
+    my $conf                 = $self->config;
     my $chapter_build_dir    = $conf->{layout}{chapter_build_directory};
     my $name                 = ( splitpath $path )[-1];
     my $chapter_dir          = catdir( 'build', $chapter_build_dir );

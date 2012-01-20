@@ -26,7 +26,7 @@ sub make_paths
 {
     my ($self, $book_dir) = @_;
     my $conf              = $self->make_conf_file( $book_dir );
-    my $layout_conf       = $self->config_file->{layout};
+    my $layout_conf       = $self->config->{layout};
     my $dir               = $layout_conf->{subchapter_directory};
     my $builddir          = $layout_conf->{chapter_build_directory};
 
