@@ -86,8 +86,11 @@ registered an ISBN, ignore this.
 
 =head2 The Layout Section
 
-The section marked C<[layout]> contains several pieces of information about
-the directory structure used to manage work:
+The section marked C<[layout]> contains several pieces of information about the
+directory structure used to manage the work. Note that if you change these
+after creating your book with the C<create> command, you may have to create new
+directories by hand--or at least symlink them. The current configuration
+options are:
 
 =over 4
 
