@@ -67,6 +67,13 @@ F<modern_perl_letter.tex>, F<modern_perl_a4.tex>, and F<modern_perl_6x9.tex>
 with the appropriate paper sizes and margins. The default value of C<book> is
 usually sufficient.
 
+=item * C<ISBN10> is the 10-digit (legacy) ISBN for the work. If you haven't
+registered an ISBN, ignore this. (If you I<have> registered an ISBN, you should
+get an 10-digit ISBN for free when you registered your 13-digit ISBN.)
+
+=item * C<ISBN13> is the 13-digit (modern) ISBN for the work. If you haven't
+registered an ISBN, ignore this.
+
 =item * C<build_index> is a boolean flag which controls whether to build and
 include an index, when possible. This is great for technical and non-fiction
 works, but works of fiction don't get much value from it.
@@ -75,12 +82,11 @@ works, but works of fiction don't get much value from it.
 F<CREDITS> file in the top-level directory into a F<credits.pod> file woven
 into the built chapters. Modern Perl does this. You may not need it.
 
-=item * C<ISBN10> is the 10-digit (legacy) ISBN for the work. If you haven't
-registered an ISBN, ignore this. (If you I<have> registered an ISBN, you should
-get an 10-digit ISBN for free when you registered your 13-digit ISBN.)
-
-=item * C<ISBN13> is the 13-digit (modern) ISBN for the work. If you haven't
-registered an ISBN, ignore this.
+=item * C<build_chapters> is a boolean flag which enables the weaving of
+chapters. If this flag is true, the C<buildchapters> command will use the
+C<layout> options of your configuration file to build partial chapters into
+full POD chapters in the appropriate F<build/> subdirectory. See
+C<chapter_build_dir>.
 
 =back
 
@@ -102,9 +108,10 @@ more semantically relevant.
 
 =item * C<chapter_name_prefix> is the prefix of all top-level chapter names in
 C<subchapter_directory>. These files may contain links to other POD files in
-that directory; the C<buildchapters> stage weaves them together and writes the
-results into F<build/chapters/>. The default of C<chapter> means that you will
-create chapters as F<chapter_01.pod>, F<chapter_02.pod>, and so on.
+that directory; when the C<build_chapters> option is true, the C<buildchapters>
+stage weaves them together and writes the results into the chapter build
+directory. The default of C<chapter> means that you will create chapters as
+F<chapter_01.pod>, F<chapter_02.pod>, and so on.
 
 =item * C<chapter_build_dir> is the directory under F<build/> into which the
 C<buildchapters> command will write all built chapters. The default of F<pod/>

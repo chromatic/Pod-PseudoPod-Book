@@ -51,9 +51,11 @@ sub get_built_chapters
     my $conf              = $self->config;
     my $chapter_prefix    = $conf->{layout}{chapter_name_prefix};
     my $chapter_build_dir = $conf->{layout}{chapter_build_directory};
+    my $glob              = $conf->{book}{build_chapters}
+                          ? "${chapter_prefix}_*.pod"
+                          : '*.pod';
 
-    return glob File::Spec->catfile(
-                    'build', $chapter_build_dir, "${chapter_prefix}_*.pod" );
+    return glob File::Spec->catfile( 'build', $chapter_build_dir, $glob );
 }
 
 sub get_anchor_list

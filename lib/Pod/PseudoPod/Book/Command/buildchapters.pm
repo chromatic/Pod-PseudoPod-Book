@@ -11,6 +11,15 @@ use File::Spec::Functions qw( catfile catdir splitpath );
 
 sub execute
 {
+    my $self = shift;
+    my $conf = $self->config;
+
+    return $self->process_chapters unless $conf->{book}{build_chapters};
+    return $self->weave_chapters;
+}
+
+sub weave_chapters
+{
     my ($self, $opt, $args) = @_;
 
     my $sections_href = $self->get_section_list;
@@ -25,6 +34,20 @@ sub execute
     return unless keys %$sections_href;
 
     die "Scenes missing from chapters:", join "\n\t", '', keys %$sections_href;
+}
+
+sub process_chapters
+{
+    my ($self, $opt, $args) = @_;
+    my $conf                = $self->config;
+    my $dir                 = $conf->{layout}{subchapter_directory};
+    my $glob_path           = catfile( $dir, '*.pod' );
+
+    for my $chapter ( glob( $glob_path ) )
+    {
+        my $text = read_file( $chapter );
+        $self->write_chapter( $chapter, $text );
+    }
 }
 
 sub get_chapter_list
