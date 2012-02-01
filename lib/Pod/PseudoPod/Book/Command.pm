@@ -6,6 +6,7 @@ use warnings;
 
 use App::Cmd::Setup -command;
 use File::Spec;
+use File::Slurp ();
 
 sub config
 {
@@ -67,9 +68,9 @@ sub get_anchor_list
     for my $chapter (@_)
     {
         my ($file)   = $chapter =~ /(${chapter_prefix}_\d+)./;
-        my $contents = slurp($chapter);
+        my $contents = File::Slurp::read_file($chapter);
 
-        while ($contents =~ /^=head\d (.*?)\n\nZ<(.*?)>/mg)
+        while ($contents =~ /(?:^=head\d (.*?)|\A)\n\nZ<(.*?)>/mg)
         {
             $anchors{$2} = [ $file . $suffix, $1 ];
         }
