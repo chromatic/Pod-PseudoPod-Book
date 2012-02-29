@@ -15,7 +15,9 @@ sub execute
     my $conf                = $self->config;
     return unless $conf->{book}{build_credits};
 
-    my $author_name         = $opt->{author_name} || '';
+    my $author_name         = $opt->{author_name}
+                           || $conf->{book}{author_name}
+                           || '';
 
     open my $fh, '<:utf8', 'CREDITS';
     my @names;
@@ -27,15 +29,19 @@ sub execute
         push @names, $1;
     }
 
-    my $dir = $conf->{layout}{subchapter_directory};
+    my @sorted = map  { local $" = ' '; "@$_" }
+                 sort { $a->[-1] cmp $b->[-1] }
+                 map  { [ (split / /, $_) ] }
+                 @names;
+
+    my $last = pop @sorted;
+    my $dir  = $conf->{layout}{subchapter_directory};
+
     open my $out_fh, '>:utf8', catfile( $dir, 'credits.pod' );
     print {$out_fh} "Z<credits>\n";
 
-    print {$out_fh} "$_,\n"
-        for map  { local $" = ' '; "@$_" }
-            sort { $a->[-1] cmp $b->[-1] }
-            map  { [ (split / /, $_) ] }
-            @names;
+    print {$out_fh} "$_,\n" for @sorted;
+    print {$out_fh} "and $last.\n";
 }
 
 1;
