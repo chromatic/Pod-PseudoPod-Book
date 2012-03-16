@@ -1,14 +1,11 @@
 package Pod::PseudoPod::Book::Conf;
+# ABSTRACT: configuration options for Pod::PseudoPod::Books
 
 1;
 
 __END__
 
 =pod
-
-=head1 NAME
-
-Pod::PseudoPod::Book::Conf - configuration options for Pod::PseudoPod::Books
 
 =head1 SYNOPSIS
 
