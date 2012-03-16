@@ -113,9 +113,9 @@ stage weaves them together and writes the results into the chapter build
 directory. The default of C<chapter> means that you will create chapters as
 F<chapter_01.pod>, F<chapter_02.pod>, and so on.
 
-=item * C<chapter_build_dir> is the directory under F<build/> into which the
-C<buildchapters> command will write all built chapters. The default of F<pod/>
-is almost always correct.
+=item * C<chapter_build_directory> is the directory under F<build/> into which
+the C<buildchapters> command will write all built chapters. The default of
+F<pod/> is almost always correct.
 
 =back
 
