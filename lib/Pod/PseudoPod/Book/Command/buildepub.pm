@@ -124,7 +124,7 @@ sub process_chapters
 
 sub slurp
 {
-    return do { local @ARGV = @_; local $/ = <>; };
+    return do { local @ARGV = @_; local $/; <>; };
 }
 
 sub get_output_fh

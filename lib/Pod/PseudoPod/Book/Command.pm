@@ -46,17 +46,23 @@ sub options
     ];
 }
 
-sub get_built_chapters
+sub get_build_prefix
 {
     my $self              = shift;
-    my $conf              = $self->config;
-    my $chapter_prefix    = $conf->{layout}{chapter_name_prefix};
-    my $chapter_build_dir = $conf->{layout}{chapter_build_directory};
-    my $glob              = $conf->{book}{build_chapters}
-                          ? "${chapter_prefix}_*.pod"
-                          : '*.pod';
+    my $chapter_build_dir = $self->config->{layout}{chapter_build_directory};
+    return File::Spec->catdir( 'build', $chapter_build_dir );
+}
 
-    return glob File::Spec->catfile( 'build', $chapter_build_dir, $glob );
+sub get_built_chapters
+{
+    my $self           = shift;
+    my $conf           = $self->config;
+    my $chapter_prefix = $conf->{layout}{chapter_name_prefix};
+    my $glob           = $conf->{book}{build_chapters}
+                       ? "${chapter_prefix}_*.pod"
+                       : '*.pod';
+
+    return glob File::Spec->catfile( $self->get_build_prefix, $glob );
 }
 
 sub get_anchor_list
