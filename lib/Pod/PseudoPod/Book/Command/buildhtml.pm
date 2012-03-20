@@ -22,15 +22,21 @@ sub execute
 
 sub gather_files
 {
-    my ($self, $args) = @_;
-    my %args = map { split /=/, $_, 2 } @$args;
+    my $self = shift;
+    my @chapters;
 
-    return $self->map_chapters_to_output unless $args{build_order};
+    if (my @order = $self->chapter_order)
+    {
+        my $build_prefix  = $self->get_build_prefix;
+        @chapters         = map { chomp; catfile( $build_prefix, "$_.pod" ) }
+                                @order;
+    }
+    else
+    {
+        @chapters = $self->get_built_chapters;
+    }
 
-    my $build_prefix  = $self->get_build_prefix;
-
-    return map { chomp; catfile( $build_prefix, $_ ) }
-            do { local @ARGV = $args{build_order}; <> };
+    return $self->map_chapters_to_output( @chapters );
 }
 
 sub map_chapters_to_output
@@ -42,8 +48,9 @@ sub map_chapters_to_output
     {
         my $dest = $_;
         $dest =~ s!/$build_dir/!/html/!;
-        [ $_ => $_ ];
-    } $self->get_built_chapters;
+        $dest =~ s/\.pod$/\.html/;
+        [ $_ => $dest ];
+    } @_;
 }
 
 1;

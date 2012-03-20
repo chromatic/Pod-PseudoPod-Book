@@ -116,6 +116,42 @@ F<pod/> is almost always correct.
 
 =back
 
+=head2 The Chapter Order Section
+
+The section marked C<[chapter_order]> is optional. If present, it allows you to
+specify the order in which individual files should appear in the table of
+contents of HTML and ePub versions. This is relevant in the case where you have
+files of different names which do not sort lexigraphically in your preferred
+order. Due to quirks of how L<Config::Tiny> manages keys and values, you must
+use sequential numeric keys, with leading zeroes preferred. For example:
+
+    [chapter_order]
+    01=endorsements
+    02=dedication
+    03=acknowledgements
+    04=foreword
+    05=part_01
+    06=chapter_01
+    07=chapter_02
+    08=chapter_03
+    09=chapter_04
+    10=chapter_05
+    11=part_02
+    12=chapter_06
+    13=chapter_07
+    14=chapter_08
+    15=chapter_09
+    16=chapter_10
+    17=appendix_a
+    18=appendix_b
+    19=appendix_c
+    20=appendix_d
+
+Note the lack of file prefixes.
+
+This feature I<may> change slightly in the future, but it will be present in
+one form or another.
+
 =head1 COPYRIGHT
 
 Copyright 2011-2012 chromatic.

@@ -65,6 +65,15 @@ sub get_built_chapters
     return glob File::Spec->catfile( $self->get_build_prefix, $glob );
 }
 
+sub get_built_html
+{
+    my $self  = shift;
+    my @order = $self->chapter_order;
+
+    return glob File::Spec->catfile(  qw( build html *.html ) ) unless @order;
+    return map { File::Spec->catfile( qw( build html ), "$_.html" ) }  @order;
+}
+
 sub get_anchor_list
 {
     my ($self, $suffix) = splice @_, 0, 2;
@@ -83,6 +92,15 @@ sub get_anchor_list
     }
 
     return \%anchors;
+}
+
+sub chapter_order
+{
+    my $self   = shift;
+    my $config = $self->config;
+    return unless my $order = $config->{chapter_order};
+
+    return map { $order->{$_} } sort { $a <=> $b } keys %$order;
 }
 
 1;
