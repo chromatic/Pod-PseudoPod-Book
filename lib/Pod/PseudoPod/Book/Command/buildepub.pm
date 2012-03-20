@@ -97,7 +97,7 @@ sub add_images
     {
         my ($name, $path, $suffix) = fileparse( $image, qw( jpg gif png ) );
         my $mime_type              = $mime_types{$suffix};
-        my $dest                   = "images/$name$suffix";
+        my $dest                   = "text/images/$name$suffix";
 
         die "Unknown image '$image'" unless $mime_type;
         $epub->add_image_entry( $image, $mime_type );
