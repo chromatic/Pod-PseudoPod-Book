@@ -8,8 +8,8 @@ use parent 'Pod::PseudoPod::Book::Command';
 
 use autodie;
 use EBook::EPUB;
+use File::Slurp;
 use File::Basename;
-use Pod::PseudoPod::XHTML;
 use File::Spec::Functions qw( catfile catdir splitpath );
 
 sub execute
@@ -17,191 +17,29 @@ sub execute
     my ($self, $opt, $args) = @_;
 
     my $conf                = $self->config;
-    my @chapters            = $self->get_built_chapters;
-    my $anchors             = $self->get_anchor_list( '.xhtml',  @chapters );
-    my ($toc, $entries)     = $self->process_chapters( $anchors, @chapters );
+    my @chapters            = $self->get_built_html;
+    my $toc                 = $self->get_toc( @chapters );
 
-    generate_index($entries);
-    generate_ebook($conf, $toc, @chapters);
+    generate_ebook( $conf, $toc, @chapters );
 }
 
-sub get_anchor_for_index
+sub get_toc
 {
-    my ($file, $index, $entries) = @_;
+    my $self = shift;
+    my @toc;
 
-    $index =~ s/^(<[pa][^>]*>)+//g;
-    $index =~ s/^\s+//g;
-
-    my @paths = split /; /, $index;
-
-    return get_index_entry( $file, $entries, @paths );
-}
-
-sub get_index_entry
-{
-    my ($file, $entries, $name) = splice @_, 0, 3;
-    my $key                     = clean_name( $name );
-    my $entry                   = $entries->{$key}
-                              ||= IndexEntry->new( name => $name );
-
-    if (@_)
+    for my $chapter (@_)
     {
-        my $subname    = shift;
-        my $subkey     = clean_name( $subname );
-        my $subentries = $entry->subentries;
-        $entry         = $subentries->{$subkey}
-                     ||= IndexEntry->new( name => $subname );
-
-        $key .= '__' . $subkey;
-    }
-
-    my $locations = $entry->locations;
-    (my $anchor   = $key . '_' . @$locations) =~ tr/ //d;
-
-    push @$locations, [ $file, $anchor ];
-
-    return $anchor;
-}
-
-sub clean_name
-{
-    my $name = shift;
-    $name    =~ s/<[^>]+>//g;
-    $name    =~ tr/ \\/_/;
-    $name    =~ s/([^A-Za-z0-9_])/ord($1)/eg;
-    return 'i' . $name;
-}
-
-sub process_chapters
-{
-    my ($self, $anchors, @chapters) = @_;
-
-    my @table_of_contents;
-    my $entries        = {};
-    my $chapter_prefix = $self->config->{layout}{chapter_name_prefix};
-
-    for my $chapter (@chapters)
-    {
-        my $out_fh              = get_output_fh($chapter);
-        my $parser              = Pod::PseudoPod::XHTML->new;
-        $parser->{_pph_anchors} = $anchors;
-        $parser->{_pph_entries} = $entries;
-
-        $parser->nix_X_codes(0);
-
-        # Set a default heading id for <h?> headings.
-        # TODO. Starts at 2 for debugging. Change later.
-        $parser->{heading_id} = 2;
-
-        $parser->output_fh($out_fh);
-
-        # output a complete html document
-        $parser->add_body_tags(1);
-
-        # add css tags for cleaner display
-        $parser->add_css_tags(1);
-
-        $parser->no_errata_section(1);
-        $parser->complain_stderr(1);
-
-        my ($file) = $chapter =~ /(${chapter_prefix}_\d+)./;
-        $parser->{file} = $file . '.xhtml';
-
+        my $contents = File::Slurp::read_file( $chapter );
+        while ($contents =~ /<h(\d) id="([^"]+)">(.+)<\/h\1>/g)
         {
-            # P::PP::H uses Text::Wrap which breaks HTML tags
-            local *Text::Wrap::wrap;
-            *Text::Wrap::wrap = sub { $_[2] };
-            open my $fh, '>:utf8', $chapter;
-            $parser->parse_file($fh);
+            my ($level, $identifier, $label) = ($1, $2, $3);
+            push @toc, [ $level, $identifier, $label, $chapter ];
         }
-
-        push @table_of_contents, @{ $parser->{to_index} }
-            if $parser->{to_index};
     }
 
-    return \@table_of_contents;
+    return \@toc;
 }
-
-sub slurp
-{
-    return do { local @ARGV = @_; local $/; <>; };
-}
-
-sub get_output_fh
-{
-    my $chapter = shift;
-    my $name    = (splitpath $chapter )[-1];
-    my $htmldir = catdir(qw( build html ));
-
-    $name =~ s/\.pod/\.xhtml/;
-    $name = catfile($htmldir, $name);
-
-    open my $fh, '>:utf8', $name;
-
-    return $fh;
-}
-
-sub generate_index
-{
-    my $entries = shift;
-    my $fh      = get_output_fh( 'index.pod' );
-    my @sorted  = sort { $a cmp $b } keys %$entries;
-
-print $fh <<'END_HEADER';
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html
-     PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<title>Index</title>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-<link rel="stylesheet" href="../styles/style.css" type="text/css"/>
-</head>
-
-<body>
-END_HEADER
-
-    print_index( $fh, $entries, \@sorted );
-
-print $fh <<'END_FOOTER';
-</body>
-</html>
-END_FOOTER
-
-}
-
-sub print_index
-{
-    my ($fh, $entries, $sorted) = @_;
-
-    print $fh "<ul>\n";
-    for my $top (@$sorted)
-    {
-        my $entry = $entries->{$top};
-
-        my $i    = 1;
-        my $name = $entry->name;
-        my $locs = join ",\n",
-            map { my ($f, $l)= @$_; qq|<a href="$f#$l">| . $i++ . '</a>' }
-            @{ $entry->locations };
-
-        print $fh "<li>$name\n$locs\n";
-
-        my $subentries = $entry->subentries;
-        if (%$subentries)
-        {
-            my @subkeys = sort { $a cmp $b } keys %$subentries;
-
-            print_index( $fh, $subentries, \@subkeys );
-        }
-        print $fh "</li>\n";
-    }
-
-    print $fh "</ul>\n";
-}
-
 
 ##############################################################################
 #
@@ -246,7 +84,7 @@ sub generate_ebook
 sub add_images
 {
     my $epub       = shift;
-    my %mime_types = 
+    my %mime_types =
     (
         jpg => 'image/jpeg',
         gif => 'image/gif',
@@ -271,15 +109,10 @@ sub add_chapters
 
     for my $chapter (@_)
     {
-        my $source = (splitpath $chapter )[-1];
-        my $dest   = $source;
-        $source =~ s/\.pod/\.html/;
-        $dest   =~ s/\.pod/\.xhtml/;
-        my $file = "./build/html/$source";
+        my $file = (splitpath $chapter )[-1];
+        (my $dest = $file) =~ s/\.html/\.xhtml/;
 
-        system( qw( tidy -q -m -utf8 -asxhtml -wrap 0 ), $file );
-
-        $epub->copy_xhtml($file, 'text/' . $dest );
+        $epub->copy_xhtml( $chapter, 'text/' . $dest );
     }
 }
 
@@ -304,7 +137,8 @@ sub set_table_of_contents
         my $heading_level = $heading->[0];
         my $section       = $heading->[1];
         my $label         = $heading->[2];
-        my $content       = 'text/' . $heading->[3] . '.xhtml';
+        (my $filename     = $heading->[3]) =~ s!.*/([^/]+).html$!$1.xhtml!;
+        my $content       = 'text/' . $filename;
 
         # Add the pod section to the NCX data, Except for the root heading.
         $content .= '#' . $section if $section ne 'heading_id_2';
@@ -396,18 +230,5 @@ END_XHTML
 
     return $cover_id;
 }
-
-package
-    IndexEntry;
-
-sub new
-{
-    my ($class, %args) = @_;
-    bless { locations => [], subentries => {}, %args }, $class;
-}
-
-sub name       { $_[0]{name}       }
-sub locations  { $_[0]{locations}  }
-sub subentries { $_[0]{subentries} }
 
 1;
