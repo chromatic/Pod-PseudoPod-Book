@@ -34,6 +34,8 @@ sub get_toc
         while ($contents =~ /<h(\d) id="([^"]+)">(.+)<\/h\1>/g)
         {
             my ($level, $identifier, $label) = ($1, $2, $3);
+            $label =~ s/<[^>]+>//g;
+            $label =~ s/&amp;/&/g;
             push @toc, [ $level, $identifier, $label, $chapter ];
         }
     }
