@@ -138,8 +138,6 @@ sub write_chapter
     open my $fh, '>:utf8', $chapter_path;
 
     print {$fh} $text;
-
-    warn "Writing '$chapter_path'\n";
 }
 
 1;
