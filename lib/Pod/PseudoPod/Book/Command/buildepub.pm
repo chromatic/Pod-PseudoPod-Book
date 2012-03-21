@@ -143,7 +143,7 @@ sub set_table_of_contents
         my $heading_level = $heading->[0];
         my $section       = $heading->[1];
         my $label         = $heading->[2];
-        (my $filename     = $heading->[3]) =~ s!.*/([^/]+).html$!$1.xhtml!;
+        (my $filename     = $heading->[3]) =~ s!.*/([^/]+.xhtml)$!$1!;
         my $content       = 'text/' . $filename;
 
         # Add the pod section to the NCX data, Except for the root heading.
