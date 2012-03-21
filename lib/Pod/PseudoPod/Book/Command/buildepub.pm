@@ -73,7 +73,7 @@ sub generate_ebook
     $epub->add_meta_item('EBook::EPUB version', $EBook::EPUB::VERSION);
 
     # Add package content: stylesheet, font, html
-    $epub->copy_stylesheet('./build/html/style.css', 'styles/style.css');
+    $epub->copy_stylesheet('./build/html/style.css', 'css/style.css');
 
     add_chapters( $epub, @chapters );
     add_images( $epub );
@@ -115,7 +115,7 @@ sub add_chapters
 
     for my $chapter (@_)
     {
-        my $file = (splitpath $chapter )[-1];
+        my $file  = (splitpath $chapter )[-1];
         (my $dest = $file) =~ s/\.html/\.xhtml/;
 
         $epub->copy_xhtml( $chapter, 'text/' . $dest );
