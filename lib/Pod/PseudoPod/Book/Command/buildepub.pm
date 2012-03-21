@@ -53,12 +53,17 @@ sub generate_ebook
     my ($conf, $table_of_contents, @chapters) = @_;
 
     # Create EPUB object
-    my $epub = EBook::EPUB->new;
+    my $epub     = EBook::EPUB->new;
+    my $metadata = $conf->{book};
 
     # Set the ePub metadata.
-    $epub->add_title($conf->{book}{title});
-    $epub->add_author($conf->{book}{author_name});
-    $epub->add_language($conf->{book}{language});
+    $epub->add_title(      $metadata->{title}       );
+    $epub->add_author(     $metadata->{author_name} );
+    $epub->add_language(   $metadata->{language}    );
+    $epub->add_publisher(  $metadata->{publisher}   ) if $metadata->{publisher};
+
+    $epub->add_identifier( $metadata->{ISBN13}, 'ISBN' )
+        if $metadata->{ISBN13};
 
     # Add the book cover.
     my $cover = $conf->{book}{cover_image};
