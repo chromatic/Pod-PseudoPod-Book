@@ -105,4 +105,19 @@ sub chapter_order
     return map { $order->{$_} } sort { $a <=> $b } keys %$order;
 }
 
+sub map_chapters_to_output
+{
+    my ($self, $suffix, $dir) = splice @_, 0, 3;
+    my $conf                  = $self->config;
+    my $build_dir             = $conf->{layout}{chapter_build_directory};
+
+    return map
+    {
+        my $dest = $_;
+        $dest =~ s!/$build_dir/!/$dir/!;
+        $dest =~ s/\.pod$/\.$suffix/;
+        [ $_ => $dest ];
+    } @_;
+}
+
 1;

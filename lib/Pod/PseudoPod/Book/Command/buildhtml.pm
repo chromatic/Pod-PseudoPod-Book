@@ -38,22 +38,7 @@ sub gather_files
         @chapters = $self->get_built_chapters;
     }
 
-    return $self->map_chapters_to_output( $suffix, @chapters );
-}
-
-sub map_chapters_to_output
-{
-    my ($self, $suffix) = @_;
-    my $conf            = $self->config;
-    my $build_dir       = $conf->{layout}{chapter_build_directory};
-
-    return map
-    {
-        my $dest = $_;
-        $dest =~ s!/$build_dir/!/html/!;
-        $dest =~ s/\.pod$/\.$suffix/;
-        [ $_ => $dest ];
-    } @_;
+    return $self->map_chapters_to_output( $suffix, 'html', @chapters );
 }
 
 1;

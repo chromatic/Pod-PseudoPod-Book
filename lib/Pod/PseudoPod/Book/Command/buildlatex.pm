@@ -14,19 +14,12 @@ use Pod::PseudoPod::DOM::App::ToLaTeX;
 sub execute
 {
     my ($self, $opt, $args) = @_;
-    my $output_dir          = dir( qw( build latex ) );
 
-    my %files = map
-    {
-        my $file     = $_;
-        my $filename = fileparse( $file, qr{\..*} ) . '.pod';
-        (my $texname = $filename) =~ s/\.pod$/\.tex/;
-        my $outfile  = file( $output_dir, $texname );
-
-        $file => $outfile,
-    } $self->get_built_chapters;
-
-    Pod::PseudoPod::DOM::App::ToLaTeX::process_files_with_output( %files );
+    Pod::PseudoPod::DOM::App::ToLaTeX::process_files_with_output(
+        $self->map_chapters_to_output( 'tex', 'latex',
+            $self->get_built_chapters
+        )
+    );
 }
 
 1;
