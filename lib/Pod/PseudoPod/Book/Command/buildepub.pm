@@ -15,9 +15,8 @@ use File::Spec::Functions qw( catfile catdir splitpath );
 sub execute
 {
     my ($self, $opt, $args) = @_;
-
     my $conf                = $self->config;
-    my @chapters            = $self->get_built_html;
+    my @chapters            = $self->get_built_html( 'xhtml' );
     my $toc                 = $self->get_toc( @chapters );
 
     generate_ebook( $conf, $toc, @chapters );

@@ -22,7 +22,9 @@ sub execute
 
 sub gather_files
 {
-    my $self = shift;
+    my ($self, $args) = @_;
+    my $suffix        = ( grep { /build_xhtml/ } @$args ) ? 'xhtml' : 'html';
+
     my @chapters;
 
     if (my @order = $self->chapter_order)
@@ -36,19 +38,20 @@ sub gather_files
         @chapters = $self->get_built_chapters;
     }
 
-    return $self->map_chapters_to_output( @chapters );
+    return $self->map_chapters_to_output( $suffix, @chapters );
 }
 
 sub map_chapters_to_output
 {
-    my $self      = shift;
-    my $build_dir = $self->config->{layout}{chapter_build_directory};
+    my ($self, $suffix) = @_;
+    my $conf            = $self->config;
+    my $build_dir       = $conf->{layout}{chapter_build_directory};
 
     return map
     {
         my $dest = $_;
         $dest =~ s!/$build_dir/!/html/!;
-        $dest =~ s/\.pod$/\.html/;
+        $dest =~ s/\.pod$/\.$suffix/;
         [ $_ => $dest ];
     } @_;
 }

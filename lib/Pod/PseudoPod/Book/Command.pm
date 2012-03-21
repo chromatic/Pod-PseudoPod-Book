@@ -67,11 +67,13 @@ sub get_built_chapters
 
 sub get_built_html
 {
-    my $self  = shift;
-    my @order = $self->chapter_order;
+    my ($self, $suffix) = @_;
+    my @order           = $self->chapter_order;
 
-    return glob File::Spec->catfile(  qw( build html *.html ) ) unless @order;
-    return map { File::Spec->catfile( qw( build html ), "$_.html" ) }  @order;
+    return glob File::Spec->catfile(  qw( build html ), "*.$suffix" )
+           unless @order;
+    return map { File::Spec->catfile( qw( build html ), "$_.$suffix" ) }
+                  @order;
 }
 
 sub get_anchor_list
