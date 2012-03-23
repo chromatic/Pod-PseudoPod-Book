@@ -147,7 +147,7 @@ use sequential numeric keys, with leading zeroes preferred. For example:
     19=appendix_c
     20=appendix_d
 
-Note the lack of file prefixes.
+Note the lack of file suffixes.
 
 This feature I<may> change slightly in the future, but it will be present in
 one form or another.
