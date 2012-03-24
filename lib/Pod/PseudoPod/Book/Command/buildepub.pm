@@ -203,9 +203,8 @@ sub add_cover
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title></title>
-<meta http-equiv="Content-Type" ]
-content="text/html; charset=iso-8859-1"/>
-<style type="text/css"> img { max-width: 100%; }</style>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">img { max-width: 100%; }</style>
 </head>
 <body>
     <p><img alt="$conf->{book}{title}" src="../images/cover.png" /></p>
@@ -223,6 +222,7 @@ END_XHTML
 
     # Add the cover page to the ePub doc.
     $epub->copy_xhtml($cover_filename, 'text/cover.xhtml' );
+    unlink $cover_filename;
 
     # Add the cover to the OPF guide.
     my $guide_options =
