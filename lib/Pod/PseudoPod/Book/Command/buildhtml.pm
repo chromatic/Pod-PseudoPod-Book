@@ -13,17 +13,18 @@ use File::Spec::Functions qw( catfile catdir splitpath );
 sub execute
 {
     my ($self, $opt, $args) = @_;
-    my @files               = $self->gather_files( $args );
+    my $is_epub             = grep { /build_xhtml/ } @$args;
+    my $suffix              = $is_epub ? 'xhtml' : 'html';
+    my @files               = $self->gather_files( $suffix );
 
-    Pod::PseudoPod::DOM::App::ToHTML::process_files_with_output(
-        @files
-    );
+    push @files, '--role=epub' if $is_epub;
+
+    Pod::PseudoPod::DOM::App::ToHTML::process_files_with_output( @files );
 }
 
 sub gather_files
 {
-    my ($self, $args) = @_;
-    my $suffix        = ( grep { /build_xhtml/ } @$args ) ? 'xhtml' : 'html';
+    my ($self, $suffix) = @_;
 
     my @chapters;
 
