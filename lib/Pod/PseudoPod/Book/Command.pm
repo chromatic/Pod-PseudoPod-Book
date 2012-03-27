@@ -73,7 +73,7 @@ sub get_built_html
     return glob File::Spec->catfile(  qw( build html ), "*.$suffix" )
            unless @order;
 
-    push @order, 'book_index' if $self->config->{book}{build_index};
+    push @order, 'theindex' if $self->config->{book}{build_index};
 
     return map { File::Spec->catfile( qw( build html ), "$_.$suffix" ) }
                   @order;
