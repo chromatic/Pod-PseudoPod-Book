@@ -10,6 +10,7 @@ use autodie;
 use EBook::EPUB;
 use File::Slurp;
 use File::Basename;
+use HTML::Entities;
 use File::Spec::Functions qw( catfile catdir splitpath );
 
 sub execute
@@ -35,7 +36,8 @@ sub get_toc
             my ($level, $identifier, $label) = ($1, $2, $3);
             $label =~ s/<[^>]+>//g;
             $label =~ s/&amp;/&/g;
-            push @toc, [ $level, $identifier, $label, $chapter ];
+            push @toc,
+                [ $level, $identifier, decode_entities($label), $chapter ];
         }
     }
 
