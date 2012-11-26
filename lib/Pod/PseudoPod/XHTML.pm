@@ -153,7 +153,7 @@ sub end_X
     my $anchor  = get_anchor_for_index($self->{file}, $scratch,
         $self->{_pph_entries});
 
-    $self->{scratch} = qq|<div id="$anchor" />|;
+    $self->{scratch} = qq|<div id="$anchor"></div>|;
     $self->emit;
 }
 
@@ -182,7 +182,7 @@ sub start_Document
 }
 
 sub start_Z { $_[0]{'scratch'} .= '<div id="' }
-sub end_Z   { $_[0]{'scratch'} .= '"/>'; $_[0]->emit() }
+sub end_Z   { $_[0]{'scratch'} .= '"></div>'; $_[0]->emit() }
 
 sub start_U { $_[0]{'scratch'} .= '<span class="url">' if $_[0]{'css_tags'} }
 sub end_U   { $_[0]{'scratch'} .= '</span>' if $_[0]{'css_tags'} }

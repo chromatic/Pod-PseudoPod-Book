@@ -36,6 +36,8 @@ sub get_toc
             my ($level, $identifier, $label) = ($1, $2, $3);
             $label =~ s/<[^>]+>//g;
             $label =~ s/&amp;/&/g;
+            $identifier = '' if $level == 1;
+
             push @toc,
                 [ $level, $identifier, decode_entities($label), $chapter ];
         }
@@ -77,11 +79,11 @@ sub generate_ebook
     # Add package content: stylesheet, font, html
     $epub->copy_stylesheet('./build/html/style.css', 'css/style.css');
 
-    add_chapters( $epub, @chapters );
+    my $chapter_ids = add_chapters( $epub, @chapters );
     add_images( $epub );
 
     # Add Pod headings to table of contents.
-    set_table_of_contents($epub, $table_of_contents);
+    set_table_of_contents( $epub, $table_of_contents, $chapter_ids );
     (my $filename_title = lc $conf->{book}{title} . '.epub') =~ s/\s+/_/g;
 
     # Generate the ePub eBook.
@@ -106,7 +108,8 @@ sub add_images
         my $dest                   = "text/images/$name$suffix";
 
         die "Unknown image '$image'" unless $mime_type;
-        $epub->add_image_entry( $image, $mime_type );
+        $epub->add_image_entry( $dest, $mime_type );
+        print STDERR "$image => $dest\n";
         $epub->copy_file( $image, $dest, $mime_type );
     }
 }
@@ -114,14 +117,17 @@ sub add_images
 sub add_chapters
 {
     my $epub = shift;
+    my %ids;
 
     for my $chapter (@_)
     {
         my $file  = (splitpath $chapter )[-1];
-        (my $dest = $file) =~ s/\.html/\.xhtml/;
+        (my $dest = 'text/' . $file) =~ s/\.html/\.xhtml/;
 
-        $epub->copy_xhtml( $chapter, 'text/' . $dest );
+        $ids{ $dest } = $epub->copy_xhtml( $chapter, $dest );
     }
+
+    return \%ids;
 }
 
 
@@ -133,11 +139,9 @@ sub add_chapters
 #
 sub set_table_of_contents
 {
-    my $epub         = shift;
-    my $pod_headings = shift;
-
-    my $play_order   = 1;
-    my @navpoints    = ($epub) x 5;
+    my ($epub, $pod_headings, $ids) = @_;
+    my $play_order                  = 1;
+    my @navpoints                   = ($epub) x 5;
     my @navpoint_obj;
 
     for my $heading (@$pod_headings)
@@ -148,12 +152,13 @@ sub set_table_of_contents
         (my $filename     = $heading->[3]) =~ s!.*/([^/]+.xhtml)$!$1!;
         my $content       = 'text/' . $filename;
 
-        # Add the pod section to the NCX data, Except for the root heading.
-        $content .= '#' . $section if $section ne 'heading_id_2';
+        # Add the pod section to the NCX data, Except for root headings.
+        $content .= '#' . $section if $section && $section ne 'heading_id_2';
+        my $id = $ids->{$content} || 'navPoint-' . $play_order;
 
         my %options = (
                        content    => $content,
-                       id         => 'navPoint-' . $play_order,
+                       id         => $id,
                        play_order => $play_order,
                        label      => $label,
                       );
