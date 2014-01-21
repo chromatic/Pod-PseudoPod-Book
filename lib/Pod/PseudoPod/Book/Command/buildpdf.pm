@@ -7,6 +7,7 @@ use warnings;
 use parent 'Pod::PseudoPod::Book::Command';
 use Path::Class;
 use File::chdir;
+use File::Copy;
 
 sub execute
 {
@@ -36,9 +37,11 @@ sub execute
 
     if ($conf->{book}{build_index})
     {
-        my @idx_args = ( makeindex => '-o', $ind_file, "$pdf_dir/$idx_file" );
-        die "makeindex failed for $idx_file: $!" if system @idx_args;
+        copy "$pdf_dir/$idx_file", $idx_file;
+        my @idx_args = ( makeindex => $idx_file, $idx_file );
+        die "makeindex failed for $pdf_dir/$idx_file: $!" if system @idx_args;
         die "pdflatex failed for $tex_file: $!"  if system @pdf_args;
+        unlink $idx_file;
     }
 
     pop @CWD;
