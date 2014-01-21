@@ -84,6 +84,7 @@ sub generate_ebook
 
     # Add Pod headings to table of contents.
     set_table_of_contents( $epub, $table_of_contents, $chapter_ids );
+    write_toc( $epub, $table_of_contents, $chapter_ids );
     (my $filename_title = lc $conf->{book}{title} . '.epub') =~ s/\s+/_/g;
 
     # Generate the ePub eBook.
@@ -143,6 +144,7 @@ sub set_table_of_contents
     my $play_order                  = 1;
     my @navpoints                   = ($epub) x 5;
     my @navpoint_obj;
+    my %labels;
 
     for my $heading (@$pod_headings)
     {
@@ -151,6 +153,8 @@ sub set_table_of_contents
         my $label         = $heading->[2];
         (my $filename     = $heading->[3]) =~ s!.*/([^/]+.xhtml)$!$1!;
         my $content       = 'text/' . $filename;
+        my $count         = ++$labels{$label};
+        $label .= " ($count)" if $count > 1;
 
         # Add the pod section to the NCX data, Except for root headings.
         $content .= '#' . $section if $section && $section ne 'heading_id_2';
@@ -178,6 +182,42 @@ sub set_table_of_contents
     }
 }
 
+##############################################################################
+#
+# write_toc()
+#
+# Writes the toc index.html file
+#
+sub write_toc
+{
+    my ($epub, $pod_headings, $ids) = @_;
+    my $play_order                  = 1;
+    my %labels;
+    my $html;
+
+    for my $heading (@$pod_headings)
+    {
+        my $heading_level = $heading->[0];
+        my $section       = $heading->[1];
+        my $label         = $heading->[2];
+        (my $filename     = $heading->[3]) =~ s!.*/([^/]+.xhtml)$!$1!;
+        my $content       = 'text/' . $filename;
+        my $count         = ++$labels{$label};
+        $label .= " ($count)" if $count > 1;
+        print STDERR "<@$heading>\n";
+
+        # Add the pod section to the NCX data, Except for root headings.
+        $content  .= '#' . $section if $section && $section ne 'heading_id_2';
+        my $id     = $ids->{$content} || 'navPoint-' . $play_order;
+        my $indent = '&nbsp;&nbsp;&nbsp;' x ( $heading_level - 1 );
+
+        $html .= $indent . qq|<a href="$id">$label</a><br />\n|;
+    }
+
+    open my $fh, '>:utf8', 'toc.html';
+    print {$fh} $html;
+    close $fh;
+}
 
 ###############################################################################
 #
