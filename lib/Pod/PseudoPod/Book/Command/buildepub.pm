@@ -110,7 +110,6 @@ sub add_images
 
         die "Unknown image '$image'" unless $mime_type;
         $epub->add_image_entry( $dest, $mime_type );
-        print STDERR "$image => $dest\n";
         $epub->copy_file( $image, $dest, $mime_type );
     }
 }
@@ -204,7 +203,6 @@ sub write_toc
         my $content       = 'text/' . $filename;
         my $count         = ++$labels{$label};
         $label .= " ($count)" if $count > 1;
-        print STDERR "<@$heading>\n";
 
         # Add the pod section to the NCX data, Except for root headings.
         $content  .= '#' . $section if $section && $section ne 'heading_id_2';
@@ -214,7 +212,7 @@ sub write_toc
         $html .= $indent . qq|<a href="$id">$label</a><br />\n|;
     }
 
-    open my $fh, '>:utf8', 'toc.html';
+    open my $fh, '>:utf8', 'index.html';
     print {$fh} $html;
     close $fh;
 }
