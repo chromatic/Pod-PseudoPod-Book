@@ -72,7 +72,7 @@ sub get_section_list
 
     for my $section (glob( $sections_path ))
     {
-        next if $section     =~ /\b${chapter_prefix}_\d+/;
+        next if $section     =~ /_\d+.pod$/;
         my $anchor           =  get_anchor( $section );
         $sections{ $anchor } =  $section;
     }
