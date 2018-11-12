@@ -12,37 +12,43 @@ my %deps =
     buildchapters => [qw( buildcredits )],
     buildhtml     => [qw( buildchapters buildcredits )],
     buildepub     => [qw( buildcredits buildchapters buildhtml )],
+    buildpml      => [qw( buildcredits buildchapters buildpml )],
     buildlatex    => [qw( buildcredits buildchapters )],
     buildpdf      => [qw( buildcredits buildchapters buildlatex )],
 );
 
-my $app = Pod::PseudoPod::Book->new;
-usage("Missing command") unless @ARGV;
-usage("Unknown command (@ARGV)") unless $app->plugin_for( $ARGV[0] );
+exit main( @ARGV );
 
-my ($cmd, $opt, @args) = $app->get_command(@ARGV);
-my @deps;
+sub main {
+    my $app = Pod::PseudoPod::Book->new;
 
-unless ($ARGV[-1] eq '--nodeps')
-{
-    @deps = @{ $deps{$ARGV[0]} };
+    return usage("Missing command") unless @_;
+    return usage("Unknown command (@_)") unless $app->plugin_for( $_[0] );
+
+    my ($cmd, $opt, @args) = $app->get_command(@_);
+    my @deps;
+
+    unless ($_[-1] eq '--nodeps')
+    {
+        @deps = @{ $deps{$_[0]} };
+    }
+
+    for my $command (@deps, $cmd)
+    {
+        $app->execute_command( $app->plugin_for($command), $opt, @args );
+    }
+
+    return 0;
 }
 
-for my $command (@deps, $cmd)
-{
-    $app->execute_command( $app->plugin_for($command), $opt, @args );
-}
-
-exit;
 
 sub usage
 {
     my $txt = shift;
+
     print "$txt\n" if $txt;
     print "Available commands:\n";
-    for my $cmd (sort keys %deps)
-    {
-        print "   $cmd\n";
-    }
-    exit;
+    print "   $_\n" for sort keys %deps;
+
+    return 1;
 }
