@@ -1,4 +1,5 @@
 .build
 *.swp
 .prove
-Pod-PseudoPod-Book*/
+Pod-PseudoPod-Book*
+tmp/
